@@ -64,6 +64,32 @@ main() {
   wt_enabled="$(get-tmux-option "@catppuccin_window_tabs_enabled" "off")"
   readonly wt_enabled
 
+  # NOTE: All the custom_icon_* variables default to a space in case they're
+  # not getting set by the user.
+  custom_icon_left_column1="$(get-tmux-option "@catppuccin_icon_left_column1" " ")"
+  readonly custom_icon_left_column1
+
+  custom_left_column1="$(get-tmux-option "@catppuccin_left_column1" "")"
+  readonly custom_left_column1
+
+  custom_icon_left_column2="$(get-tmux-option "@catppuccin_icon_left_column2" " ")"
+  readonly custom_icon_left_column2
+
+  custom_left_column2="$(get-tmux-option "@catppuccin_left_column2" "")"
+  readonly custom_left_column2
+
+  custom_icon_right_column1="$(get-tmux-option "@catppuccin_icon_right_column1" " ")"
+  readonly custom_icon_right_column1
+
+  custom_right_column1="$(get-tmux-option "@catppuccin_right_column1" "")"
+  readonly custom_right_column1
+
+  custom_icon_right_column2="$(get-tmux-option "@catppuccin_icon_right_column2" " ")"
+  readonly custom_icon_right_column2
+
+  custom_right_column2="$(get-tmux-option "@catppuccin_right_column2" "")"
+  readonly custom_right_column2
+
   # These variables are the defaults so that the setw and set calls are easier to parse.
   readonly show_directory="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$thm_gray] #{b:pane_current_path} #{?client_prefix,#[fg=$thm_red]"
   readonly show_window="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics] #[fg=$thm_fg,bg=$thm_gray] #W #{?client_prefix,#[fg=$thm_red]"
@@ -72,10 +98,6 @@ main() {
   readonly show_directory_in_window_status_current="#[fg=$thm_bg,bg=$thm_orange] #I #[fg=$thm_fg,bg=$thm_bg] #{b:pane_current_path} "
   readonly show_window_in_window_status="#[fg=$thm_fg,bg=$thm_bg] #W #[fg=$thm_bg,bg=$thm_blue] #I#[fg=$thm_blue,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
   readonly show_window_in_window_status_current="#[fg=$thm_fg,bg=$thm_gray] #W #[fg=$thm_bg,bg=$thm_orange] #I#[fg=$thm_orange,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
-
-  readonly show_custom_wifi="#[fg=$thm_fg,bg=$thm_gray] #(current_wifi_network) #[fg=$thm_yellow,bg=$thm_bg,nobold,nounderscore,noitalics]"
-  readonly show_custom_timer="#[fg=$thm_fg,bg=$thm_gray] #(outatime) #[fg=$thm_red,bg=$thm_bg,nobold,nounderscore,noitalics]"
-  readonly show_custom_music="#[fg=$thm_magenta,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] #(current_music)"
 
   # Right column 1 by default shows the Window name.
   local right_column1=$show_window
@@ -87,6 +109,34 @@ main() {
   local window_status_format=$show_directory_in_window_status
   local window_status_current_format=$show_directory_in_window_status_current
 
+  # NOTE: By default the show_custom_* variables are blank. This allows them to
+  # be populated in the part of the status line without needing it to be
+  # defined by the user.
+  local show_custom_left_column1=""
+  local show_custom_left_column2=""
+  local show_custom_right_column1=""
+  local show_custom_right_column2=""
+
+  if type "${custom_left_column1}" &>/dev/null
+  then
+    show_custom_left_column1="#[fg=$thm_fg,bg=$thm_gray] #(${custom_left_column1}) #[fg=$thm_bg,bg=$thm_red,nobold,nounderscore,noitalics]${custom_icon_left_column1}#[fg=$thm_red,bg=$thm_bg,nobold,nounderscore,noitalics]"
+  fi
+
+  if type "${custom_left_column2}" &>/dev/null
+  then
+    show_custom_left_column2="#[fg=$thm_fg,bg=$thm_gray] #(${custom_left_column2}) #[fg=$thm_bg,bg=$thm_yellow,nobold,nounderscore,noitalics]${custom_icon_left_column2}#[fg=$thm_yellow,bg=$thm_bg,nobold,nounderscore,noitalics]"
+  fi
+
+  if type "${custom_right_column1}" &>/dev/null
+  then
+    show_custom_right_column1="#[fg=$thm_yellow,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_yellow,nobold,nounderscore,noitalics]${custom_icon_right_column1}#[fg=$thm_fg,bg=$thm_gray] #(${custom_right_column1}) "
+  fi
+
+  if type "${custom_right_column2}" &>/dev/null
+  then
+    show_custom_right_column2="#[fg=$thm_red,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_red,nobold,nounderscore,noitalics]${custom_icon_right_column2}#[fg=$thm_fg,bg=$thm_gray] #(${custom_right_column2}) "
+  fi
+
   # NOTE: With the @catppuccin_window_tabs_enabled set to on, we're going to
   # update the right_column1 and the window_status_* variables.
   if [[ "${wt_enabled}" == "on" ]]
@@ -96,9 +146,9 @@ main() {
     window_status_current_format=$show_window_in_window_status_current
   fi
 
-  set status-left "${show_custom_timer} ${show_custom_wifi}"
+  set status-left "${show_custom_left_column1}${show_custom_left_column2}"
 
-  set status-right "${show_custom_music} ${right_column1},${right_column2}"
+  set status-right "${show_custom_right_column1}${show_custom_right_column2} ${right_column1},${right_column2}"
 
   setw window-status-format "${window_status_format}"
   setw window-status-current-format "${window_status_current_format}"
