@@ -73,9 +73,9 @@ main() {
   readonly show_window_in_window_status="#[fg=$thm_fg,bg=$thm_bg] #W #[fg=$thm_bg,bg=$thm_blue] #I#[fg=$thm_blue,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
   readonly show_window_in_window_status_current="#[fg=$thm_fg,bg=$thm_gray] #W #[fg=$thm_bg,bg=$thm_orange] #I#[fg=$thm_orange,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
 
-  readonly show_custom_wifi="#[fg=$thm_yellow,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_yellow,nobold,nounderscore,noitalics]#(current_wifi_network)#[fg=$thm_yellow,bg=$thm_bg,nobold,nounderscore,noitalics]"
-  readonly show_custom_timer="#[fg=$thm_red,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_red,nobold,nounderscore,noitalics]#(outatime)#[fg=$thm_red,bg=$thm_bg,nobold,nounderscore,noitalics]"
-  readonly show_custom_music="#[fg=$thm_magenta,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_magenta,nobold,nounderscore,noitalics]#(current_music)#[fg=$thm_magenta,bg=$thm_bg,nobold,nounderscore,noitalics]"
+  readonly show_custom_wifi="#[fg=$thm_fg,bg=$thm_gray] #(current_wifi_network) #[fg=$thm_yellow,bg=$thm_bg,nobold,nounderscore,noitalics]"
+  readonly show_custom_timer="#[fg=$thm_fg,bg=$thm_gray] #(outatime) #[fg=$thm_red,bg=$thm_bg,nobold,nounderscore,noitalics]"
+  readonly show_custom_music="#[fg=$thm_magenta,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] #(current_music)"
 
   # Right column 1 by default shows the Window name.
   local right_column1=$show_window
@@ -96,9 +96,9 @@ main() {
     window_status_current_format=$show_window_in_window_status_current
   fi
 
-  set status-left "${show_custom_timer},${show_custom_wifi}"
+  set status-left "${show_custom_timer} ${show_custom_wifi}"
 
-  set status-right "${show_custom_music},${right_column1},${right_column2}"
+  set status-right "${show_custom_music} ${right_column1},${right_column2}"
 
   setw window-status-format "${window_status_format}"
   setw window-status-current-format "${window_status_current_format}"
