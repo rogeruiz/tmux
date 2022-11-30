@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PLUGIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 main() {
   get-tmux-option() {
@@ -33,10 +33,10 @@ main() {
   # NOTE: Pulling in the selected theme by the theme that's being set as local
   # variables.
   sed -E 's/^(.+=)/local \1/' \
-      > catppuccin-selected-theme.tmuxtheme \
-      < "${CURRENT_DIR}/catppuccin-${theme}.tmuxtheme"
+      > "${PLUGIN_DIR}/catppuccin-selected-theme.tmuxtheme" \
+      < "${PLUGIN_DIR}/catppuccin-${theme}.tmuxtheme"
 
-  source catppuccin-selected-theme.tmuxtheme
+  source "${PLUGIN_DIR}/catppuccin-selected-theme.tmuxtheme"
 
   # status
   set status "on"
@@ -67,6 +67,10 @@ main() {
   # NOTE: Checking for the value of @catppuccin_window_tabs_enabled
   wi_enabled="$(get-tmux-option "@catppuccin_window_icons_enabled" "off")"
   readonly wi_enabled
+
+  # NOTE: Checking for the value of @catppuccin_extended_path_enabled
+  ep_enabled="$(get-tmux-option "@catppuccin_extended_path_enabled" "off")"
+  readonly ep_enabled
 
   # README: Any variables marked `readonly` are the defaults so that it is
   # easier to understand what is a default value. Some variables are marked
@@ -104,6 +108,13 @@ main() {
 
   custom_icon_window_bell="$(get-tmux-option "@catppuccin_icon_window_bell" "${icon_window_bell}")"
   readonly custom_icon_window_bell
+
+  local show_directory_path="#{b:pane_current_path}"
+
+  if [[ ${ep_enabled} == "on" ]]
+  then
+    show_directory_path="#(echo '#{pane_current_path}' | rev | cut -d'/' -f-2 | rev)"
+  fi
 
   # Set default the window status variable
   local show_window_status="#F "
@@ -143,11 +154,11 @@ main() {
   readonly custom_right_column2
 
   # These variables are the defaults so that the setw and set calls are easier to parse.
-  readonly show_directory="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$thm_gray] #{b:pane_current_path} #{?client_prefix,#[fg=$thm_red]"
+  readonly show_directory="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$thm_gray] ${show_directory_path} #{?client_prefix,#[fg=$thm_red]"
   readonly show_window="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]${show_window_status} #[fg=$thm_fg,bg=$thm_gray] #W #{?client_prefix,#[fg=$thm_red]"
   readonly show_session="#[fg=$thm_green]}#[bg=$thm_gray]#{?client_prefix,#[bg=$thm_red],#[bg=$thm_green]}#[fg=$thm_bg] #[fg=$thm_fg,bg=$thm_gray] #S "
-  readonly show_directory_in_window_status="#[fg=$thm_bg,bg=$thm_blue] #I #[fg=$thm_fg,bg=$thm_gray] #{b:pane_current_path} "
-  readonly show_directory_in_window_status_current="#[fg=$thm_bg,bg=$thm_orange] #I #[fg=$thm_fg,bg=$thm_bg] #{b:pane_current_path} "
+  readonly show_directory_in_window_status="#[fg=$thm_bg,bg=$thm_blue] #I #[fg=$thm_fg,bg=$thm_gray] ${show_directory_path} "
+  readonly show_directory_in_window_status_current="#[fg=$thm_bg,bg=$thm_orange] #I #[fg=$thm_fg,bg=$thm_bg] ${show_directory_path} "
   readonly show_window_in_window_status="#[fg=$thm_fg,bg=$thm_bg] #W #[fg=$thm_bg,bg=$thm_blue] ${show_window_status}#I#[fg=$thm_blue,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
   readonly show_window_in_window_status_current="#[fg=$thm_fg,bg=$thm_gray] #W #[fg=$thm_bg,bg=$thm_orange] ${show_window_status}#I#[fg=$thm_orange,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
 
