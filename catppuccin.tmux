@@ -1,42 +1,42 @@
 #!/usr/bin/env bash
-PLUGIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+get_tmux_option() {
+  local option value default
+  option="$1"
+  default="$2"
+  value="$(tmux show-option -gqv "$option")"
+
+  if [ -n "$value" ]; then
+    echo "$value"
+  else
+    echo "$default"
+  fi
+}
+
+set() {
+  local option=$1
+  local value=$2
+  tmux_commands+=(set-option -gq "$option" "$value" ";")
+}
+
+setw() {
+  local option=$1
+  local value=$2
+  tmux_commands+=(set-window-option -gq "$option" "$value" ";")
+}
 
 main() {
-  get-tmux-option() {
-    local option value default
-    option="$1"
-    default="$2"
-    value="$(tmux show-option -gqv "$option")"
-
-    if [ -n "$value" ]; then
-      echo "$value"
-    else
-      echo "$default"
-    fi
-  }
-
-  set() {
-    local option=$1
-    local value=$2
-    tmux set-option -gq "$option" "$value"
-  }
-
-  setw() {
-    local option=$1
-    local value=$2
-    tmux set-window-option -gq "$option" "$value"
-  }
-
   local theme
-  theme="$(get-tmux-option "@catppuccin_flavour" "mocha")"
+  theme="$(get_tmux_option "@catppuccin_flavour" "mocha")"
+
+  # Aggregate all commands in one array
+  local tmux_commands=()
 
   # NOTE: Pulling in the selected theme by the theme that's being set as local
   # variables.
-  sed -E 's/^(.+=)/local \1/' \
-      > "${PLUGIN_DIR}/catppuccin-selected-theme.tmuxtheme" \
-      < "${PLUGIN_DIR}/catppuccin-${theme}.tmuxtheme"
-
-  source "${PLUGIN_DIR}/catppuccin-selected-theme.tmuxtheme"
+  # shellcheck source=catppuccin-frappe.tmuxtheme
+  source /dev/stdin <<<"$(sed -e "/^[^#].*=/s/^/local /" "${PLUGIN_DIR}/catppuccin-${theme}.tmuxtheme")"
 
   # status
   set status "on"
@@ -61,15 +61,18 @@ main() {
   # --------=== Statusline
 
   # NOTE: Checking for the value of @catppuccin_window_tabs_enabled
-  wt_enabled="$(get-tmux-option "@catppuccin_window_tabs_enabled" "off")"
+  local wt_enabled
+  wt_enabled="$(get_tmux_option "@catppuccin_window_tabs_enabled" "off")"
   readonly wt_enabled
 
-  # NOTE: Checking for the value of @catppuccin_window_tabs_enabled
-  wi_enabled="$(get-tmux-option "@catppuccin_window_icons_enabled" "off")"
+  # NOTE: Checking for the value of @catppuccin_window_icons_enabled
+  local wi_enabled
+  wi_enabled="$(get_tmux_option "@catppuccin_window_icons_enabled" "on")"
   readonly wi_enabled
 
   # NOTE: Checking for the value of @catppuccin_extended_path_enabled
-  ep_enabled="$(get-tmux-option "@catppuccin_extended_path_enabled" "off")"
+  local ep_enabled
+  ep_enabled="$(get_tmux_option "@catppuccin_extended_path_enabled" "off")"
   readonly ep_enabled
 
   # README: Any variables marked `readonly` are the defaults so that it is
@@ -88,25 +91,25 @@ main() {
 
   # README: The following variables are set to the defaults above but can be
   # overwritten by the user.
-  custom_icon_window_last="$(get-tmux-option "@catppuccin_icon_window_last" "${icon_window_last}")"
+  custom_icon_window_last="$(get_tmux_option "@catppuccin_icon_window_last" "${icon_window_last}")"
   readonly custom_icon_window_last
 
-  custom_icon_window_current="$(get-tmux-option "@catppuccin_icon_window_current" "${icon_window_current}")"
+  custom_icon_window_current="$(get_tmux_option "@catppuccin_icon_window_current" "${icon_window_current}")"
   readonly custom_icon_window_current
 
-  custom_icon_window_zoom="$(get-tmux-option "@catppuccin_icon_window_zoom" "${icon_window_zoom}")"
+  custom_icon_window_zoom="$(get_tmux_option "@catppuccin_icon_window_zoom" "${icon_window_zoom}")"
   readonly custom_icon_window_zoom
 
-  custom_icon_window_mark="$(get-tmux-option "@catppuccin_icon_window_mark" "${icon_window_mark}")"
+  custom_icon_window_mark="$(get_tmux_option "@catppuccin_icon_window_mark" "${icon_window_mark}")"
   readonly custom_icon_window_mark
 
-  custom_icon_window_silent="$(get-tmux-option "@catppuccin_icon_window_silent" "${icon_window_silent}")"
+  custom_icon_window_silent="$(get_tmux_option "@catppuccin_icon_window_silent" "${icon_window_silent}")"
   readonly custom_icon_window_silent
 
-  custom_icon_window_activity="$(get-tmux-option "@catppuccin_icon_window_activity" "${icon_window_activity}")"
+  custom_icon_window_activity="$(get_tmux_option "@catppuccin_icon_window_activity" "${icon_window_activity}")"
   readonly custom_icon_window_activity
 
-  custom_icon_window_bell="$(get-tmux-option "@catppuccin_icon_window_bell" "${icon_window_bell}")"
+  custom_icon_window_bell="$(get_tmux_option "@catppuccin_icon_window_bell" "${icon_window_bell}")"
   readonly custom_icon_window_bell
 
   local show_directory_path="#{b:pane_current_path}"
@@ -129,38 +132,58 @@ main() {
 
   # NOTE: All the custom_icon_* variables default to a space in case they're
   # not getting set by the user.
-  custom_icon_left_column1="$(get-tmux-option "@catppuccin_icon_left_column1" " ")"
+  custom_icon_left_column1="$(get_tmux_option "@catppuccin_icon_left_column1" " ")"
   readonly custom_icon_left_column1
 
-  custom_left_column1="$(get-tmux-option "@catppuccin_left_column1" "")"
+  custom_left_column1="$(get_tmux_option "@catppuccin_left_column1" "")"
   readonly custom_left_column1
 
-  custom_icon_left_column2="$(get-tmux-option "@catppuccin_icon_left_column2" " ")"
+  custom_icon_left_column2="$(get_tmux_option "@catppuccin_icon_left_column2" " ")"
   readonly custom_icon_left_column2
 
-  custom_left_column2="$(get-tmux-option "@catppuccin_left_column2" "")"
+  custom_left_column2="$(get_tmux_option "@catppuccin_left_column2" "")"
   readonly custom_left_column2
 
-  custom_icon_right_column1="$(get-tmux-option "@catppuccin_icon_right_column1" " ")"
+  custom_icon_right_column1="$(get_tmux_option "@catppuccin_icon_right_column1" " ")"
   readonly custom_icon_right_column1
 
-  custom_right_column1="$(get-tmux-option "@catppuccin_right_column1" "")"
+  custom_right_column1="$(get_tmux_option "@catppuccin_right_column1" "")"
   readonly custom_right_column1
 
-  custom_icon_right_column2="$(get-tmux-option "@catppuccin_icon_right_column2" " ")"
+  custom_icon_right_column2="$(get_tmux_option "@catppuccin_icon_right_column2" " ")"
   readonly custom_icon_right_column2
 
-  custom_right_column2="$(get-tmux-option "@catppuccin_right_column2" "")"
+  custom_right_column2="$(get_tmux_option "@catppuccin_right_column2" "")"
   readonly custom_right_column2
 
   # These variables are the defaults so that the setw and set calls are easier to parse.
-  readonly show_directory="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$thm_gray] ${show_directory_path} #{?client_prefix,#[fg=$thm_red]"
-  readonly show_window="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]${show_window_status} #[fg=$thm_fg,bg=$thm_gray] #W #{?client_prefix,#[fg=$thm_red]"
-  readonly show_session="#[fg=$thm_green]}#[bg=$thm_gray]#{?client_prefix,#[bg=$thm_red],#[bg=$thm_green]}#[fg=$thm_bg] #[fg=$thm_fg,bg=$thm_gray] #S "
-  readonly show_directory_in_window_status="#[fg=$thm_bg,bg=$thm_blue] #I #[fg=$thm_fg,bg=$thm_gray] ${show_directory_path} "
-  readonly show_directory_in_window_status_current="#[fg=$thm_bg,bg=$thm_orange] #I #[fg=$thm_fg,bg=$thm_bg] ${show_directory_path} "
-  readonly show_window_in_window_status="#[fg=$thm_fg,bg=$thm_bg] #W #[fg=$thm_bg,bg=$thm_blue] ${show_window_status}#I#[fg=$thm_blue,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
-  readonly show_window_in_window_status_current="#[fg=$thm_fg,bg=$thm_gray] #W #[fg=$thm_bg,bg=$thm_orange] ${show_window_status}#I#[fg=$thm_orange,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
+  local show_directory
+  show_directory="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$thm_gray] ${show_directory_path} #{?client_prefix,#[fg=$thm_red]"
+  readonly show_directory
+
+  local show_window
+  show_window="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]${show_window_status} #[fg=$thm_fg,bg=$thm_gray] #W #{?client_prefix,#[fg=$thm_red]"
+  readonly show_window
+
+  local show_session
+  show_session="#[fg=$thm_green]}#[bg=$thm_gray]#{?client_prefix,#[bg=$thm_red],#[bg=$thm_green]}#[fg=$thm_bg] #[fg=$thm_fg,bg=$thm_gray] #S "
+  readonly show_session
+
+  local show_directory_in_window_status
+  show_directory_in_window_status="#[fg=$thm_bg,bg=$thm_blue] #I #[fg=$thm_fg,bg=$thm_gray] ${show_directory_path} "
+  readonly show_directory_in_window_status
+
+  local show_directory_in_window_status_current
+  show_directory_in_window_status_current="#[fg=$thm_bg,bg=$thm_orange] #I #[fg=$thm_fg,bg=$thm_bg] ${show_directory_path} "
+  readonly show_directory_in_window_status_current
+
+  local show_window_in_window_status
+  show_window_in_window_status="#[fg=$thm_fg,bg=$thm_bg] #W #[fg=$thm_bg,bg=$thm_blue] ${show_window_status}#I#[fg=$thm_blue,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
+  readonly show_window_in_window_status
+
+  local show_window_in_window_status_current
+  show_window_in_window_status_current="#[fg=$thm_fg,bg=$thm_gray] #W #[fg=$thm_bg,bg=$thm_orange] ${show_window_status}#I#[fg=$thm_orange,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
+  readonly show_window_in_window_status_current
 
   # Right column 1 by default shows the Window name.
   local right_column1=$show_window
@@ -220,6 +243,8 @@ main() {
   #
   setw clock-mode-colour "${thm_blue}"
   setw mode-style "fg=${thm_pink} bg=${thm_black4} bold"
+
+  tmux "${tmux_commands[@]}"
 }
 
 main "$@"
