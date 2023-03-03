@@ -158,11 +158,11 @@ main() {
 
   # These variables are the defaults so that the setw and set calls are easier to parse.
   local show_directory
-  show_directory="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$thm_gray] ${show_directory_path} #{?client_prefix,#[fg=$thm_red]"
+  show_directory="#[fg=$thm_pink,bg=$thm_gray,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$thm_gray] ${show_directory_path} #{?client_prefix,#[fg=$thm_red]"
   readonly show_directory
 
   local show_window
-  show_window="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]${show_window_status} #[fg=$thm_fg,bg=$thm_gray] #W #{?client_prefix,#[fg=$thm_red]"
+  show_window="#[fg=$thm_pink,bg=$thm_gray,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]${show_window_status} #[fg=$thm_fg,bg=$thm_gray] #W #{?client_prefix,#[fg=$thm_red]"
   readonly show_window
 
   local show_session
@@ -178,11 +178,11 @@ main() {
   readonly show_directory_in_window_status_current
 
   local show_window_in_window_status
-  show_window_in_window_status="#[fg=$thm_fg,bg=$thm_bg] #W #[fg=$thm_bg,bg=$thm_blue] ${show_window_status}#I#[fg=$thm_blue,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
+  show_window_in_window_status="#[fg=$thm_fg,bg=$thm_bg] #W #[fg=$thm_bg,bg=$thm_blue] ${show_window_status}#I#[fg=$thm_blue,bg=$thm_gray]#[fg=$thm_fg,bg=$thm_gray,nobold,nounderscore,noitalics]"
   readonly show_window_in_window_status
 
   local show_window_in_window_status_current
-  show_window_in_window_status_current="#[fg=$thm_fg,bg=$thm_gray] #W #[fg=$thm_bg,bg=$thm_orange] ${show_window_status}#I#[fg=$thm_orange,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
+  show_window_in_window_status_current="#[fg=$thm_fg,bg=$thm_gray] #W #[fg=$thm_bg,bg=$thm_orange] ${show_window_status}#I#[fg=$thm_orange,bg=$thm_bg]#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics]"
   readonly show_window_in_window_status_current
 
   # Right column 1 by default shows the Window name.
